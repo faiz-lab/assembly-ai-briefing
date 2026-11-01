@@ -56,6 +56,30 @@ h2{font-size:64px;font-weight:700;letter-spacing:-1px;line-height:1.15}
 #hint.hide{opacity:0}
 .vprint{display:none}
 
+
+/* presenter view */
+body.mode-cur #hint,body.mode-next #hint,body.mode-cur #notes,body.mode-next #notes{display:none!important}
+body.mode-cur #stage,body.mode-next #stage{cursor:default}
+body.mode-presenter{background:#0B0D10;overflow:auto}
+body.mode-presenter #stage,body.mode-presenter #notes,body.mode-presenter #hint{display:none!important}
+#pv{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px;padding:20px 24px;min-height:100vh;color:var(--fg)}
+.pv-cap{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:1px;color:var(--sub);margin:4px 0 8px}
+.pv-frame{position:relative;width:100%;overflow:hidden;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#000}
+.pv-frame iframe{position:absolute;left:0;top:0;width:1920px;height:1080px;border:0;transform-origin:0 0;pointer-events:none}
+.pv-bar{display:flex;align-items:baseline;gap:16px;margin-top:16px;font-family:'JetBrains Mono',monospace}
+.pv-page{font-size:22px;color:var(--sub)}
+.pv-timer{font-size:44px;font-weight:500;color:var(--fg)}
+.pv-timer.over{color:var(--amber)}
+.pv-target{font-size:18px;color:var(--sub)}
+.pv-clock{margin-left:auto;font-size:22px;color:var(--sub)}
+.pv-bar button{font:inherit;font-size:14px;color:var(--fg);background:#12151A;border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:6px 12px;cursor:pointer}
+.pv-bar button:hover{border-color:var(--ac)}
+.pv-status{margin-top:10px;font-size:14px;color:var(--amber)}
+.pv-side{display:flex;flex-direction:column;min-width:0}
+.pv-nextlabel{font-size:14px;color:var(--sub);margin:8px 0 16px}
+.pv-notes{flex:1;font-size:22px;line-height:1.75;white-space:pre-wrap;background:#12151A;border:1px solid var(--line);border-radius:8px;padding:16px 20px;overflow:auto;min-height:240px}
+.pv-keys{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--sub);margin-top:10px}
+
 @media (prefers-reduced-motion: reduce){
   .slide,.a{transition:none!important}
   .carriers{animation:none}
@@ -274,7 +298,7 @@ h2{font-size:64px;font-weight:700;letter-spacing:-1px;line-height:1.15}
 
 </div>
 <div id="notes"><div class="h" id="notesh"></div><div id="notesb"></div></div>
-<div id="hint">← → / Space：ページ送り　F：全画面　N：ノート</div>
+<div id="hint">← → / Space：ページ送り　F：全画面　N：ノート　P：発表者ビュー</div>
 
 <script>
 (function(){
@@ -356,6 +380,8 @@ h2{font-size:64px;font-weight:700;letter-spacing:-1px;line-height:1.15}
   var stage=document.getElementById('stage'), slides=[].slice.call(document.querySelectorAll('.slide')),
       video=document.getElementById('cgvideo'), notes=document.getElementById('notes'),
       cur=-1, step=0;
+  var Q=new URLSearchParams(location.search), MODE=Q.has('presenter')?'presenter':(Q.get('embed')||'main');
+  document.body.classList.add('mode-'+MODE);
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   document.querySelectorAll('.a').forEach(function(e){
@@ -375,7 +401,7 @@ h2{font-size:64px;font-weight:700;letter-spacing:-1px;line-height:1.15}
     if(instant){void sl.offsetWidth;sl.classList.remove('noanim');}
   }
   function syncVideo(){
-    var on=slides[cur].id==='approach' && step<1;
+    var on=slides[cur].id==='approach' && step<1 && MODE!=='next';
     if(on){var p=video.play(); if(p&&p.catch)p.catch(function(){});} else video.pause();
   }
   function go(i,final){
@@ -389,35 +415,143 @@ h2{font-size:64px;font-weight:700;letter-spacing:-1px;line-height:1.15}
     if(final) setStep(sl,step,true);
     else requestAnimationFrame(function(){requestAnimationFrame(function(){setStep(sl,0,false);});});
     syncVideo(); renderNotes();
-    history.replaceState(null,'','#'+(i+1));
+    if(MODE==='main') history.replaceState(null,'','#'+(i+1));
+    post();
   }
-  function next(){var sl=slides[cur]; if(step<maxStep(sl)){step++;setStep(sl,step,false);syncVideo();} else go(cur+1,false);}
-  function prev(){var sl=slides[cur]; if(step>0){step--;setStep(sl,step,true);syncVideo();} else go(cur-1,true);}
+  function next(){var sl=slides[cur]; if(step<maxStep(sl)){step++;setStep(sl,step,false);syncVideo();post();} else go(cur+1,false);}
+  function prev(){var sl=slides[cur]; if(step>0){step--;setStep(sl,step,true);syncVideo();post();} else go(cur-1,true);}
   function renderNotes(){
     document.getElementById('notesh').textContent=(cur+1)+' / '+slides.length+'　'+(slides[cur].querySelector('h1,h2').textContent);
     document.getElementById('notesb').textContent=slides[cur].querySelector('.notes').textContent;
   }
   function fs(){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(function(){}); }
+  var BASE=location.href.split(/[?#]/)[0];
 
-  addEventListener('keydown',function(e){
-    if(e.metaKey||e.ctrlKey||e.altKey) return;
-    var k=e.key;
-    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();next();}
-    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
-    else if(k==='Home'){go(0,false);}
-    else if(k==='End'){go(slides.length-1,true);}
-    else if(k==='f'||k==='F'){fs();}
-    else if(k==='n'||k==='N'){notes.classList.toggle('show');}
-  });
-  stage.addEventListener('click',function(e){ if(e.clientX<innerWidth*0.25) prev(); else next(); });
+  /* ---------- presenter link (main window side) ---------- */
+  var pw=null;
+  function post(){ if(MODE==='main' && pw && !pw.closed) pw.postMessage({deck:1,type:'state',cur:cur,step:step},'*'); }
+  function openPresenter(){
+    if(pw && !pw.closed){ pw.focus(); return; }
+    pw=window.open(BASE+'?presenter#'+(cur+1),'deck-presenter','width=1440,height=860');
+    if(!pw) alert('ポップアップがブロックされました。ブラウザの設定でこのページのポップアップを許可してください。');
+  }
 
-  setTimeout(function(){document.getElementById('hint').classList.add('hide')},4000);
-  addEventListener('beforeprint',function(){slides.forEach(function(s){setStep(s,99,true)})});
-  addEventListener('afterprint',function(){var c=cur;cur=-1;slides.forEach(function(s){s.classList.remove('cur')});go(c,true);});
+  if(MODE==='main'){
+    addEventListener('message',function(e){
+      var d=e.data; if(!d||d.deck!==1) return;
+      if(d.type==='hello'){ pw=e.source; post(); return; }
+      if(e.source!==pw) return;
+      if(d.type==='nav'){
+        if(d.dir==='next') next(); else if(d.dir==='prev') prev();
+        else if(d.dir==='home') go(0,false); else if(d.dir==='end') go(slides.length-1,true);
+      }
+    });
+    addEventListener('keydown',function(e){
+      if(e.metaKey||e.ctrlKey||e.altKey) return;
+      var k=e.key;
+      if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();next();}
+      else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+      else if(k==='Home'){go(0,false);}
+      else if(k==='End'){go(slides.length-1,true);}
+      else if(k==='f'||k==='F'){fs();}
+      else if(k==='n'||k==='N'){notes.classList.toggle('show');}
+      else if(k==='p'||k==='P'){openPresenter();}
+    });
+    stage.addEventListener('click',function(e){ if(e.clientX<innerWidth*0.25) prev(); else next(); });
+    setTimeout(function(){document.getElementById('hint').classList.add('hide')},4000);
+    addEventListener('beforeprint',function(){slides.forEach(function(s){setStep(s,99,true)})});
+    addEventListener('afterprint',function(){var c=cur;cur=-1;slides.forEach(function(s){s.classList.remove('cur')});go(c,true);});
+    addEventListener('hashchange',function(){var n=parseInt(location.hash.slice(1),10); if(!isNaN(n)&&n-1!==cur) go(Math.min(Math.max(n-1,0),slides.length-1),false);});
+    addEventListener('beforeunload',function(){ if(pw && !pw.closed) pw.postMessage({deck:1,type:'bye'},'*'); });
+    var start=parseInt((location.hash||'').slice(1),10);
+    go(isNaN(start)?0:Math.min(Math.max(start-1,0),slides.length-1),false);
+  }
 
-  addEventListener('hashchange',function(){var n=parseInt(location.hash.slice(1),10); if(!isNaN(n)&&n-1!==cur) go(Math.min(Math.max(n-1,0),slides.length-1),false);});
-  var start=parseInt((location.hash||'').slice(1),10);
-  go(isNaN(start)?0:Math.min(Math.max(start-1,0),slides.length-1),false);
+  /* ---------- preview frame inside presenter (?embed=cur|next) ---------- */
+  if(MODE==='cur'||MODE==='next'){
+    addEventListener('message',function(e){
+      var d=e.data; if(!d||d.deck!==1||d.type!=='show') return;
+      if(d.i<0||d.i>=slides.length){ stage.style.visibility='hidden'; video.pause(); return; }
+      stage.style.visibility='visible';
+      if(d.i!==cur) go(d.i,true);
+      step=d.step; setStep(slides[cur],step,true); syncVideo();
+    });
+    if(MODE==='next'){ video.removeAttribute('src'); video.load(); }
+    parent.postMessage({deck:1,type:'ready',which:MODE},'*');
+  }
+
+  /* ---------- presenter window ---------- */
+  if(MODE==='presenter'){
+    video.removeAttribute('src'); video.load();
+    document.title='発表者ビュー — '+document.title;
+    var pv=document.createElement('div'); pv.id='pv';
+    pv.innerHTML=
+      '<div class="pv-main"><div class="pv-cap">現在のスライド</div><div class="pv-frame" id="fcur"><iframe src="'+BASE+'?embed=cur" tabindex="-1"></iframe></div>'+
+      '<div class="pv-bar"><span class="pv-page" id="pvpage">–</span><span class="pv-timer" id="pvtimer">00:00</span><span class="pv-target">/ 07:00</span>'+
+      '<button id="pvpause">一時停止</button><button id="pvreset">リセット</button><span class="pv-clock" id="pvclock"></span></div>'+
+      '<div class="pv-status" id="pvstatus"></div></div>'+
+      '<div class="pv-side"><div class="pv-cap">次</div><div class="pv-frame" id="fnext"><iframe src="'+BASE+'?embed=next" tabindex="-1"></iframe></div>'+
+      '<div class="pv-nextlabel" id="pvnextlabel"></div><div class="pv-cap">ノート</div><div class="pv-notes" id="pvnotes"></div>'+
+      '<div class="pv-keys">→ / Space：次へ　←：戻る　R：タイマーをリセット</div></div>';
+    document.body.appendChild(pv);
+    var fcur=pv.querySelector('#fcur iframe'), fnext=pv.querySelector('#fnext iframe'),
+        pcur=0, pstep=0, linked=!!window.opener;
+
+    function nextState(i,s){ var m=maxStep(slides[i]); return s<m?{i:i,s:s+1,same:true}:{i:i+1,s:i+1<slides.length?maxStep(slides[i+1]):0,same:false}; }
+    function render(){
+      var n=nextState(pcur,pstep);
+      fcur.contentWindow.postMessage({deck:1,type:'show',i:pcur,step:pstep},'*');
+      fnext.contentWindow.postMessage({deck:1,type:'show',i:n.i,step:n.s},'*');
+      document.getElementById('pvpage').textContent=(pcur+1)+' / '+slides.length;
+      document.getElementById('pvnotes').textContent=slides[pcur].querySelector('.notes').textContent;
+      document.getElementById('pvnextlabel').textContent= n.i>=slides.length?'（最後のスライドです）': n.same?'次のクリック：同じスライドの続き':'次のスライド：'+(n.i+1)+'. '+slides[n.i].querySelector('h1,h2').textContent;
+    }
+    function fitFrames(){ pv.querySelectorAll('.pv-frame').forEach(function(f){ var w=f.clientWidth; f.style.height=(w*1080/1920)+'px'; f.firstChild.style.transform='scale('+(w/1920)+')'; }); }
+    addEventListener('resize',fitFrames); fitFrames();
+
+    function setStatus(){ document.getElementById('pvstatus').textContent= linked&&window.opener&&!window.opener.closed ? '' : 'メイン画面と接続されていません（このウィンドウ内だけで操作します）'; }
+    function nav(dir){
+      if(linked && window.opener && !window.opener.closed){ window.opener.postMessage({deck:1,type:'nav',dir:dir},'*'); return; }
+      linked=false; setStatus();
+      if(dir==='next'){ if(pstep<maxStep(slides[pcur])) pstep++; else if(pcur<slides.length-1){pcur++;pstep=0;} }
+      else if(dir==='prev'){ if(pstep>0) pstep--; else if(pcur>0){pcur--;pstep=maxStep(slides[pcur]);} }
+      else if(dir==='home'){pcur=0;pstep=0;} else if(dir==='end'){pcur=slides.length-1;pstep=maxStep(slides[pcur]);}
+      render();
+    }
+    addEventListener('message',function(e){
+      var d=e.data; if(!d||d.deck!==1) return;
+      if(d.type==='ready'){ render(); return; }
+      if(d.type==='state'&&e.source===window.opener){ pcur=d.cur; pstep=d.step; linked=true; setStatus(); render(); }
+      if(d.type==='bye'&&e.source===window.opener){ linked=false; setStatus(); setTimeout(function(){ if(window.opener&&!window.opener.closed){ window.opener.postMessage({deck:1,type:'hello'},'*'); } },1500); }
+    });
+    addEventListener('keydown',function(e){
+      if(e.metaKey||e.ctrlKey||e.altKey) return;
+      var k=e.key;
+      if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();nav('next');}
+      else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();nav('prev');}
+      else if(k==='Home'){nav('home');} else if(k==='End'){nav('end');}
+      else if(k==='r'||k==='R'){resetT();}
+    });
+
+    /* timer */
+    var t0=Date.now(), acc=0, running=true;
+    function elapsed(){ return acc+(running?Date.now()-t0:0); }
+    function pad(n){return (n<10?'0':'')+n;}
+    function tick(){
+      var s=Math.floor(elapsed()/1000), el=document.getElementById('pvtimer');
+      el.textContent=pad(Math.floor(s/60))+':'+pad(s%60); el.classList.toggle('over',s>=420);
+      var d=new Date(); document.getElementById('pvclock').textContent=pad(d.getHours())+':'+pad(d.getMinutes());
+    }
+    function resetT(){ acc=0; t0=Date.now(); running=true; document.getElementById('pvpause').textContent='一時停止'; tick(); }
+    document.getElementById('pvreset').onclick=resetT;
+    document.getElementById('pvpause').onclick=function(){ if(running){acc=elapsed();running=false;this.textContent='再開';} else {t0=Date.now();running=true;this.textContent='一時停止';} tick(); };
+    setInterval(tick,500); tick();
+
+    var h=parseInt((location.hash||'').slice(1),10); if(!isNaN(h)) pcur=Math.min(Math.max(h-1,0),slides.length-1);
+    setStatus();
+    if(window.opener) window.opener.postMessage({deck:1,type:'hello'},'*');
+    render();
+  }
 })();
 </script>
 </body>
