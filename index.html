@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自動車組付工程の作業分類AI — 役員報告</title>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<style>
+:root{--bg:#0B0D10;--card:#12151A;--fg:#E8EAED;--sub:#A8AFB9;--ac:#3DD6F5;--amber:#F5B83D;--line:rgba(255,255,255,0.08);--ease:cubic-bezier(.2,.7,.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#000;overflow:hidden}
+body{font-family:'Inter','Noto Sans JP',sans-serif;color:var(--fg);-webkit-font-smoothing:antialiased;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.mono{font-family:'JetBrains Mono',monospace}
+#stage{position:fixed;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg);overflow:hidden}
+
+/* slides */
+.slide{position:absolute;inset:0;width:1920px;height:1080px;background:var(--bg);padding:168px 120px 160px;display:flex;flex-direction:column;gap:48px;
+  opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .5s var(--ease),transform .5s var(--ease),visibility 0s linear .5s}
+.slide.cur{opacity:1;visibility:visible;transform:none;transition:opacity .5s var(--ease),transform .5s var(--ease),visibility 0s}
+.abs{position:absolute}
+.chap{position:absolute;left:120px;top:64px;font-family:'JetBrains Mono',monospace;font-size:24px;letter-spacing:1px;color:var(--sub)}
+.chap b{font-weight:400;color:var(--ac)}
+.pn{position:absolute;right:120px;bottom:64px;font-family:'JetBrains Mono',monospace;font-size:24px;color:var(--sub)}
+.foot{position:absolute;left:120px;bottom:64px;font-size:24px;line-height:1.4;color:var(--sub)}
+h1{font-size:72px;font-weight:700;letter-spacing:-1px;line-height:1.15}
+h2{font-size:64px;font-weight:700;letter-spacing:-1px;line-height:1.15}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px}
+.ico{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.notes{display:none}
+
+/* build animations */
+.a{transition:opacity .6s var(--ease),transform .6s var(--ease),stroke-dashoffset .5s ease-out}
+.a[data-anim=rise]:not(.on){opacity:0;transform:translateY(24px)}
+.a[data-anim=fade]:not(.on){opacity:0}
+.a[data-anim=left]:not(.on){opacity:0;transform:translateX(-40px)}
+.a[data-anim=right]:not(.on){opacity:0;transform:translateX(40px)}
+.a[data-anim=grow]{transform-origin:left center}
+.a[data-anim=grow]:not(.on){transform:scaleX(0)}
+.a[data-anim=spread]:not(.on){opacity:0;transform:translateX(var(--dx,0px)) scale(.96)}
+.a[data-anim=out].on{opacity:0;transform:scale(.98)}
+.a[data-anim=draw]{stroke-dasharray:1;stroke-dashoffset:0}
+.a[data-anim=draw]:not(.on){stroke-dashoffset:1}
+.slide.noanim .a{transition:none!important}
+
+/* cover carriers */
+@keyframes flow{from{transform:translateX(-960px)}to{transform:translateX(0)}}
+.carriers{animation:flow 24s linear infinite}
+
+/* overlays */
+#notes{position:fixed;left:0;right:0;bottom:0;max-height:42vh;overflow:auto;background:rgba(11,13,16,.94);border-top:1px solid rgba(255,255,255,.16);
+  padding:20px 32px 28px;font-size:18px;line-height:1.7;color:var(--fg);white-space:pre-wrap;display:none;z-index:10}
+#notes.show{display:block}
+#notes .h{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--sub);margin-bottom:8px}
+#hint{position:fixed;right:20px;bottom:16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--sub);opacity:.9;transition:opacity 1s;z-index:9;pointer-events:none}
+#hint.hide{opacity:0}
+.vprint{display:none}
+
+@media (prefers-reduced-motion: reduce){
+  .slide,.a{transition:none!important}
+  .carriers{animation:none}
+}
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{width:1920px;height:auto;overflow:visible;background:var(--bg)}
+  #stage{position:static;transform:none!important;width:1920px;height:auto;overflow:visible}
+  .slide{position:relative;opacity:1!important;visibility:visible!important;transform:none!important;transition:none!important;break-after:page;page-break-after:always;overflow:hidden}
+  .a{opacity:1!important;transform:none!important;stroke-dashoffset:0!important;transition:none!important}
+  .a[data-anim=out]{display:none}
+  .carriers{animation:none}
+  #notes,#hint{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- ===================== P1 cover ===================== -->
+<section class="slide" id="cover" style="padding:256px 120px 160px;gap:28px">
+  <svg class="abs a" data-anim="fade" data-t="300" style="left:0;top:640px" width="1920" height="220" viewBox="0 0 1920 220" fill="none">
+    <g stroke="rgba(255,255,255,0.10)" stroke-width="1"><path d="M0 120H1920M0 152H1920"/><path d="M120 64V120M360 64V120M600 64V120M840 64V120M1080 64V120M1320 64V120M1560 64V120M1800 64V120M120 152V164M360 152V164M600 152V164M840 152V164M1080 152V164M1320 152V164M1560 152V164M1800 152V164"/></g>
+  </svg>
+  <svg class="abs a" data-anim="fade" data-t="400" style="left:0;top:640px;overflow:hidden" width="1920" height="220" viewBox="0 0 1920 220" fill="none">
+    <g class="carriers" id="carriers"></g>
+    <rect x="600" y="151" width="240" height="2" fill="rgba(61,214,245,0.4)"/>
+  </svg>
+  <h1 class="a" data-anim="rise" data-t="100">自動車組付工程の作業分類AI</h1>
+  <p class="a" data-anim="rise" data-t="200" style="font-size:36px;line-height:1.4;color:var(--sub)">CGで学び、どのラインでも作業時間を測る</p>
+  <p class="chap"><b>00</b> / 共同研究報告</p>
+  <p class="abs a" data-anim="rise" data-t="300" style="left:120px;top:884px;font-size:28px;line-height:1.4">名古屋大学 河口研究室 × 株式会社トヨタシステムズ　<span style="color:var(--sub)">／ 2026年11月5日</span></p>
+  <p class="pn">01 / 08</p>
+  <div class="notes">名古屋大学 河口研究室の喬です。本日は、トヨタシステムズ様との共同研究「自動車組付工程の作業分類AI」について、7分ほどでご報告します。
+一言でいうと、CGで学習データを作り、ラインが変わってもデータサイエンティストに頼らず作業時間を測れるAIを目指す研究です。
+「なぜ取り組むのか」「どこまで来たか」「これからどう進めるか」の順にお話しします。</div>
+</section>
+
+<!-- ===================== P2 issues ===================== -->
+<section class="slide" id="issues">
+  <h2>現場の課題</h2>
+  <div class="abs card a" data-anim="rise" data-t="100" style="left:120px;top:304px;width:538px;height:304px;display:flex;flex-direction:column;gap:20px;padding:40px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><p class="mono" style="font-size:24px;color:var(--amber)">01</p>
+      <svg class="ico" stroke="#A8AFB9" width="40" height="40" viewBox="0 0 40 40"><circle cx="18" cy="18" r="10"/><path d="M25.5 25.5L33 33"/></svg></div>
+    <h3 style="font-size:32px;font-weight:700;line-height:1.35">改善すべき作業の<br>特定が困難</h3>
+    <p style="font-size:28px;line-height:1.5;color:var(--sub)">タクトタイムと実作業の乖離の要因が分からない</p>
+  </div>
+  <div class="abs card a" data-anim="rise" data-t="200" style="left:691px;top:304px;width:538px;height:304px;display:flex;flex-direction:column;gap:20px;padding:40px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><p class="mono" style="font-size:24px;color:var(--amber)">02</p>
+      <svg class="ico" stroke="#A8AFB9" width="40" height="40" viewBox="0 0 40 40"><circle cx="14" cy="14" r="4.5"/><path d="M5 31C5 24.5 23 24.5 23 31"/><circle cx="28" cy="17" r="3.5"/><path d="M23 27.5C25 23.5 35 23.5 35 29.5"/></svg></div>
+    <h3 style="font-size:32px;font-weight:700;line-height:1.35">熟練差の<br>把握が困難</h3>
+    <p style="font-size:28px;line-height:1.5;color:var(--sub)">差が生じる作業を改善・教育に生かせない</p>
+  </div>
+  <div class="abs card a" data-anim="rise" data-t="300" style="left:1262px;top:304px;width:538px;height:304px;display:flex;flex-direction:column;gap:20px;padding:40px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><p class="mono" style="font-size:24px;color:var(--amber)">03</p>
+      <svg class="ico" stroke="#A8AFB9" width="40" height="40" viewBox="0 0 40 40"><path d="M31 15A12 12 0 1 0 32 23"/><path d="M31.5 7.5V15H24"/></svg></div>
+    <h3 style="font-size:32px;font-weight:700;line-height:1.35">車種・工程変更ごとの<br>再定義負担</h3>
+    <p style="font-size:28px;line-height:1.5;color:var(--sub)">変わるたびに測り直し</p>
+  </div>
+  <p class="abs a" data-anim="fade" data-t="600" style="left:120px;top:724px;width:1680px;padding-top:44px;border-top:1px solid var(--line);font-size:40px;font-weight:600;line-height:1.3;color:var(--sub)">人手による計測は継続できない<span style="color:var(--ac)">　→　AIによる自動計測へ</span></p>
+  <p class="chap"><b>01</b> / 課題</p>
+  <p class="pn">02 / 08</p>
+  <div class="notes">まず、現場の課題です。
+一つ目は、改善すべき作業の特定です。タクトタイムと実際の作業時間がずれること自体は避けられません。問題は、そのずれがどの作業から生じているのかを突き止める手段がないことです。
+二つ目は、熟練差の把握です。熟練者と新人の差がどの作業で生まれているのかが分からないため、改善や教育に十分生かせていません。
+三つ目は、車種や工程が変わるたびに、作業の定義と計測をやり直す負担です。
+いずれも、人手で測り続けるのは現実的ではありません。そこで、AIによる自動計測が必要になります。</div>
+</section>
+
+<!-- ===================== P3 background ===================== -->
+<section class="slide" id="background">
+  <h2>これまでの取り組みと壁</h2>
+  <div style="display:flex;flex-direction:column">
+    <div class="a" data-anim="rise" data-t="100" style="display:grid;grid-template-columns:320px 1fr 1fr;border-bottom:1px solid rgba(255,255,255,0.16)">
+      <p></p>
+      <div style="display:flex;flex-direction:column;gap:8px;padding:16px 24px 24px"><h3 style="font-size:32px;font-weight:700;line-height:1.3">2ショット学習</h3><p style="font-size:24px;line-height:1.4;color:var(--sub)">2サイクル映像で手動学習</p></div>
+      <div style="display:flex;flex-direction:column;gap:8px;padding:16px 24px 24px"><h3 style="font-size:32px;font-weight:700;line-height:1.3">データサイエンティスト依頼型</h3><p style="font-size:24px;line-height:1.4;color:var(--sub)">専門家による作業分類</p></div>
+    </div>
+    <!-- rows: label, left mark, right mark -->
+    <div class="a row" data-anim="rise" data-t="200" data-row="精度,x,o"></div>
+    <div class="a row" data-anim="rise" data-t="300" data-row="費用,o,x"></div>
+    <div class="a row" data-anim="rise" data-t="400" data-row="運用,x,o"></div>
+    <div class="a row" data-anim="rise" data-t="500" data-row="速度,o,x"></div>
+  </div>
+  <p class="abs a" data-anim="rise" data-t="800" style="left:120px;top:800px;width:1680px;font-size:56px;font-weight:700;letter-spacing:-1px;line-height:1.2">本質的な課題は<span style="color:var(--ac)">「ラインごとに作り直すコスト」</span></p>
+  <p class="chap"><b>02</b> / 背景</p>
+  <p class="pn">03 / 08</p>
+  <div class="notes">これまで、2つの方法を検証してきました。
+左は、2サイクル分の映像から手動で学習させる「2ショット学習」です。費用と速度は良いのですが、精度と運用に課題が残りました。
+右は、データサイエンティストに作業分類を依頼する方法です。精度と運用は良い一方で、費用と時間がかかります。
+2つを並べると、共通の壁が見えてきます。ラインや車種が変わるたびに、AIを作り直すコストがかかることです。
+ここを解決しない限り、多くの現場に広げることはできません。</div>
+</section>
+
+<!-- ===================== P4 vision ===================== -->
+<section class="slide" id="vision">
+  <h2>目指す姿</h2>
+  <div id="vnodes"></div>
+  <svg class="abs" style="left:600px;top:626px;overflow:visible" width="720" height="84" viewBox="0 0 720 84" fill="none" stroke="#A8AFB9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path class="a" data-anim="draw" data-t="1700" pathLength="1" style="transition-duration:.9s" d="M706 8V76H14V16"/>
+    <path class="a" data-anim="draw" data-t="2600" pathLength="1" d="M8 22L14 14L20 22"/>
+  </svg>
+  <p class="abs a" data-anim="fade" data-t="2600" style="left:614px;top:718px;width:692px;text-align:center;font-size:24px;line-height:1.4;color:var(--sub)">工程変更時は、現場から再学習を指示</p>
+  <p class="chap"><b>03</b> / ビジョン</p>
+  <p class="pn">04 / 08</p>
+  <div class="notes">私たちが目指す姿です。
+工程カメラの映像を入れると、1つのAIが作業の切れ目を自動で見つけ、映像を区切ります。
+次に、似た作業同士をグループにまとめます。ここまではAIが行います。
+現場の方は、まとまった作業に名前を付けるだけです。そうすれば、作業ごとの時間を自動で計測できます。
+そして工程が変わったときは、データサイエンティストに依頼するのではなく、現場から再学習を指示するだけで対応できる。
+これが、ラインごとに作り直すコストをなくすための仕組みです。</div>
+</section>
+
+<!-- ===================== P5 approach ===================== -->
+<section class="slide" id="approach" style="gap:56px">
+  <h2>アプローチ：CGで学ぶ</h2>
+  <div style="width:620px;display:flex;flex-direction:column;gap:44px">
+    <div class="a" data-anim="rise" data-t="100" style="display:flex;gap:24px;align-items:baseline"><p class="mono" style="font-size:24px;color:var(--ac)">01</p><p style="flex:1;font-size:30px;line-height:1.5">実映像なしで、Blenderで工場ラインを再現</p></div>
+    <div class="a" data-anim="rise" data-t="200" style="display:flex;gap:24px;align-items:baseline"><p class="mono" style="font-size:24px;color:var(--ac)">02</p><p style="flex:1;font-size:30px;line-height:1.5">車の色・作業者の服装・照明・カメラ位置を変え、<span style="color:var(--ac)">「見た目だけが違う同じ作業」</span>を大量生成</p></div>
+    <div class="a" data-anim="rise" data-t="300" style="display:flex;gap:24px;align-items:baseline"><p class="mono" style="font-size:24px;color:var(--ac)">03</p><p style="flex:1;font-size:30px;line-height:1.5">見た目に惑わされず、作業そのものを捉える特徴を学習</p></div>
+  </div>
+  <div class="abs a" data-anim="out" data-c="1" style="left:960px;top:290px;width:840px;height:630px;transition-duration:.5s">
+    <div class="a" data-anim="fade" data-t="200" style="position:absolute;inset:0">
+      <video id="cgvideo" src="assets/cg.mp4" poster="assets/still.jpg" muted loop playsinline preload="auto" style="width:840px;height:630px;object-fit:cover;border-radius:12px;display:block;background:#000"></video>
+      <p class="mono" style="position:absolute;left:24px;top:24px;padding:6px 16px;border-radius:8px;background:rgba(11,13,16,0.72);font-size:24px">CG映像</p>
+    </div>
+  </div>
+  <div id="worlds"></div>
+  <p class="abs a" data-anim="fade" data-c="1" data-t="450" style="left:760px;top:700px;width:1040px;font-size:24px;line-height:1.5;color:var(--sub)">同じ瞬間・同じ作業を、5つの見た目で同時に生成<br>（上：カメラA ／ 下：カメラB）</p>
+  <p class="chap"><b>04</b> / アプローチ</p>
+  <p class="pn">05 / 08</p>
+  <div class="notes">では、作り直しのコストをどうなくすか。私たちのアプローチは「CGで学ぶ」ことです。
+名古屋大学側では実際の工場映像を使えないため、Blenderで組付ラインを再現しました。いま右側で流れているのが、そのCG映像です。
+（クリック）さらに、作業はそのままに、車の色、作業者の服装、照明、カメラ位置だけを変えた映像を、同時に大量に作れます。ここに並んでいるのは、同じ瞬間の同じ作業を、5通りの見た目で描いたものです。
+見た目だけが違う同じ作業を並べて学ばせることで、AIは見た目に惑わされず、作業そのものを捉える力を身につけます。これが、ラインが変わっても使えるAIの土台になります。</div>
+</section>
+
+<!-- ===================== P6 status ===================== -->
+<section class="slide" id="status">
+  <h2>現在地</h2>
+  <div style="display:flex;gap:32px">
+    <div class="card a" data-anim="rise" data-t="100" style="flex:1;display:flex;flex-direction:column;gap:20px;padding:40px">
+      <div style="display:flex;gap:16px;align-items:center">
+        <svg class="ico" stroke="#3DD6F5" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14"/><path d="M13.5 20.5L18 25L27 15.5"/></svg>
+        <p style="font-size:28px;font-weight:600;color:var(--ac)">できたこと</p></div>
+      <p style="font-size:32px;font-weight:700;line-height:1.4">同期多視点・多外観のCG学習データ生成基盤</p>
+      <p style="font-size:28px;line-height:1.5;color:var(--sub)">180秒・3タクト単位で量産可能</p>
+    </div>
+    <div class="card a" data-anim="rise" data-t="200" style="flex:1;display:flex;flex-direction:column;gap:20px;padding:40px">
+      <div style="display:flex;gap:16px;align-items:center">
+        <svg class="ico" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" stroke="rgba(232,234,237,0.24)"/><path d="M20 6A14 14 0 0 1 34 20" stroke="#E8EAED"/></svg>
+        <p style="font-size:28px;font-weight:600">取り組み中</p></div>
+      <p style="font-size:32px;font-weight:700;line-height:1.4">見た目・車種の違いに強い表現学習</p>
+    </div>
+  </div>
+  <p class="abs a" data-anim="fade" data-t="300" style="left:120px;top:636px;font-size:24px;line-height:1.4;color:var(--sub)">作業区間の自動分割</p>
+  <p class="abs a" data-anim="fade" data-t="300" style="right:120px;top:630px;width:150px;text-align:center;padding:2px 0;border:1px solid rgba(232,234,237,0.32);border-radius:999px;font-size:24px;line-height:1.4">イメージ</p>
+  <div class="abs a" data-anim="fade" data-t="300" style="left:120px;top:720px;width:1680px;height:60px;border-radius:6px;background:rgba(255,255,255,0.04)"></div>
+  <div class="abs a" data-anim="fade" data-t="300" style="left:680px;top:704px;width:1px;height:92px;background:rgba(255,255,255,0.16)"></div>
+  <div class="abs a" data-anim="fade" data-t="300" style="left:1240px;top:704px;width:1px;height:92px;background:rgba(255,255,255,0.16)"></div>
+  <div id="timeline"></div>
+  <p class="abs a" data-anim="fade" data-t="300" style="left:120px;top:816px;font-size:24px;line-height:1.4;color:var(--sub)">時間 →</p>
+  <p class="foot a" data-anim="fade" data-t="2100">目標は作業単位の時間誤差1秒以内。現在、目標に向けて検証中。</p>
+  <p class="chap"><b>05</b> / 現在地</p>
+  <p class="pn">06 / 08</p>
+  <div class="notes">現在地です。
+できたことは、学習データを作る基盤です。複数のカメラ視点と複数の見た目を同期させたCG映像を、180秒・3タクトを1単位として量産できるようになりました。
+いま取り組んでいるのは、このデータを使って、見た目や車種が違っても作業を正しく捉える特徴の学習です。
+下の帯は、AIが映像を作業ごとに区切るイメージで、実際の結果ではありません。同じ色が、タクトごとに繰り返す同じ作業を表しています。
+最終目標は、作業単位の時間誤差を1秒以内にすることで、現在はそこに向けて検証を進めています。</div>
+</section>
+
+<!-- ===================== P7 roadmap ===================== -->
+<section class="slide" id="roadmap">
+  <h2>ロードマップ</h2>
+  <div class="abs a" data-anim="grow" data-t="100" style="left:120px;top:571px;width:1680px;height:2px;background:rgba(255,255,255,0.16);transition-duration:.9s"></div>
+  <div class="abs a" data-anim="rise" data-t="300" style="left:120px;top:564px;width:500px;display:flex;flex-direction:column;gap:32px">
+    <div style="width:16px;height:16px;border-radius:50%;background:var(--ac);box-shadow:0 0 0 6px rgba(61,214,245,0.18)"></div>
+    <p style="font-size:40px;font-weight:700;letter-spacing:-.5px;line-height:1.2">2026年度</p>
+    <p style="font-size:28px;line-height:1.5;color:var(--sub)">学習データの多様化と特徴学習の検証</p>
+  </div>
+  <p class="abs a" data-anim="fade" data-t="550" style="left:120px;top:484px;width:130px;text-align:center;padding:2px 0;border:1px solid var(--ac);border-radius:999px;font-size:24px;line-height:1.4;font-weight:600;color:var(--ac)">現在地</p>
+  <div class="abs a" data-anim="rise" data-t="700" style="left:700px;top:564px;width:500px;display:flex;flex-direction:column;gap:32px">
+    <div style="width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--sub)"></div>
+    <p style="font-size:40px;font-weight:700;letter-spacing:-.5px;line-height:1.2">2027年1月頃</p>
+    <p style="font-size:28px;line-height:1.5;color:var(--sub)">推論一式（モデル・スクリプト・手順書）をTS様へ提供し、実映像で評価</p>
+  </div>
+  <div class="abs a" data-anim="rise" data-t="900" style="left:1280px;top:564px;width:500px;display:flex;flex-direction:column;gap:32px">
+    <div style="width:16px;height:16px;border-radius:50%;background:var(--bg);border:2px solid var(--sub)"></div>
+    <p style="font-size:40px;font-weight:700;letter-spacing:-.5px;line-height:1.2">以降</p>
+    <p style="font-size:28px;line-height:1.5;color:var(--sub)">現場運用の検討・業務適用</p>
+  </div>
+  <p class="chap"><b>06</b> / 今後</p>
+  <p class="pn">07 / 08</p>
+  <div class="notes">今後の進め方です。
+2026年度は、学習データのバリエーションを増やしながら、見た目に強い特徴学習が本当に機能するかを検証します。私たちは今、ここにいます。
+2027年1月頃をめどに、学習済みモデル、推論スクリプト、手順書を一式にまとめてTS様にお渡しし、実際の工場映像で評価していただく計画です。名古屋大学側は実映像を見られないため、ここが初めての本番評価になります。
+その結果を踏まえて、現場での運用方法や業務への適用を一緒に検討していきたいと考えています。</div>
+</section>
+
+<!-- ===================== P8 ask ===================== -->
+<section class="slide" id="ask">
+  <h2>TS様へのお願い</h2>
+  <div id="askcards"></div>
+  <div class="abs a" data-anim="grow" data-t="500" style="left:120px;top:640px;width:1680px;height:1px;background:var(--line);transition-duration:.8s"></div>
+  <p class="abs a" data-anim="rise" data-t="800" style="left:120px;top:704px;width:1680px;font-size:72px;font-weight:700;letter-spacing:-1.5px;line-height:1.15">工程カメラ映像を、<span style="color:var(--ac)">カイゼンの力に</span></p>
+  <p class="foot a" data-anim="fade" data-t="1000">名古屋大学 河口研究室 × 株式会社トヨタシステムズ</p>
+  <p class="chap"><b>07</b> / 連携</p>
+  <p class="pn">08 / 08</p>
+  <div class="notes">最後に、TS様へのお願いです。
+一つ目は、実際の工場映像で評価していただく体制づくりです。私たちが作ったAIをTS様の映像で動かし、結果を共有していただけると大変助かります。
+二つ目は、工程表と作業定義の共有です。作業の名前付けや、評価の基準になります。
+三つ目は、最初に評価する対象工程の選定です。まずは一つの工程から始めたいと考えています。
+工程カメラの映像を、カイゼンの力に。引き続きご支援のほど、よろしくお願いいたします。ありがとうございました。</div>
+</section>
+
+</div>
+<div id="notes"><div class="h" id="notesh"></div><div id="notesb"></div></div>
+<div id="hint">← → / Space：ページ送り　F：全画面　N：ノート</div>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  function el(html){var t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
+
+  /* P1 carriers: pattern repeats every 960px, drawn from -960 to 2880 */
+  var g=document.getElementById('carriers'),s='';
+  for(var x=-960;x<2880;x+=240){var acc=((x%960)+960)%960===240;
+    s+='<rect x="'+x+'" y="110" width="120" height="8" rx="2" fill="'+(acc?'rgba(61,214,245,0.6)':'rgba(232,234,237,0.16)')+'"/>';}
+  g.innerHTML=s;
+
+  /* P3 rows */
+  document.querySelectorAll('#background .row').forEach(function(r){
+    var p=r.dataset.row.split(','); r.style.cssText='display:grid;grid-template-columns:320px 1fr 1fr;border-bottom:1px solid rgba(255,255,255,0.08)';
+    function mark(m){return m==='x'
+      ?'<p style="font-size:60px;font-weight:300;line-height:0.75;padding:16px 24px;color:#F5B83D">×</p>'
+      :'<p style="font-size:40px;line-height:1.1;padding:16px 24px">○</p>';}
+    r.innerHTML='<p style="font-size:28px;line-height:1.4;padding:20px 24px 20px 0;color:#A8AFB9">'+p[0]+'</p>'+mark(p[1])+mark(p[2]);
+  });
+
+  /* P4 nodes + arrows (draw in sequence) */
+  var vn=document.getElementById('vnodes'),
+    nodes=[['01','<rect x="5" y="12" width="21" height="16" rx="2.5"/><path d="M26 17.5L35 13V27L26 22.5"/>','工程カメラ<br>映像'],
+           ['02','<rect x="4" y="13" width="32" height="14" rx="2.5"/><path d="M13 9V31M21 9V31M28 9V31"/>','1つのAIが<br>作業を自動で<br>区切る'],
+           ['03','<circle cx="10" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><circle cx="14" cy="19" r="3"/><circle cx="24" cy="27" r="3"/><circle cx="32" cy="27" r="3"/><circle cx="28" cy="34" r="3"/>','似た作業を<br>グループ化'],
+           ['04','<path d="M6 6H19L34 21L21 34L6 19Z"/><circle cx="13" cy="13" r="2"/>','現場が<br>名前を付ける'],
+           ['05','<circle cx="20" cy="21" r="13"/><path d="M20 13V21L25.5 24.5M16 4H24"/>','作業時間を<br>自動計測']];
+  nodes.forEach(function(n,i){
+    var left=120+i*346, hi=(i===1), t=100+i*350;
+    vn.parentNode.insertBefore(el('<div class="abs card a" data-anim="rise" data-t="'+t+'" style="left:'+left+'px;top:330px;width:296px;height:300px;display:flex;flex-direction:column;gap:20px;padding:28px;border-color:'+(hi?'#3DD6F5':'rgba(255,255,255,0.12)')+'">'+
+      '<p class="mono" style="font-size:24px;color:'+(hi?'#3DD6F5':'#A8AFB9')+'">'+n[0]+'</p>'+
+      '<svg class="ico" stroke="'+(hi?'#3DD6F5':'#E8EAED')+'" width="40" height="40" viewBox="0 0 40 40">'+n[1]+'</svg>'+
+      '<p style="font-size:28px;font-weight:500;line-height:1.45">'+n[2]+'</p></div>'),vn);
+    if(i<4){
+      var at=t+230;
+      vn.parentNode.insertBefore(el('<svg class="abs" style="left:'+(left+296)+'px;top:470px" width="50" height="20" viewBox="0 0 50 20" fill="none" stroke="#3DD6F5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+
+        '<path class="a" data-anim="draw" data-t="'+at+'" pathLength="1" style="transition-duration:.3s" d="M6 10H43"/>'+
+        '<path class="a" data-anim="draw" data-t="'+(at+260)+'" pathLength="1" style="transition-duration:.2s" d="M37 4L43 10L37 16"/></svg>'),vn);
+    }
+  });
+  vn.remove();
+
+  /* P5 five worlds: spread out from the centre column */
+  var wd=document.getElementById('worlds'), lefts=[760,971,1182,1393,1604];
+  lefts.forEach(function(l,i){
+    var d=Math.abs(i-2);
+    wd.parentNode.insertBefore(el('<img class="abs a" data-anim="spread" data-c="1" data-t="'+(150+d*130)+'" src="assets/world'+i+'.jpg" alt="外観'+(i+1)+'（上：カメラA、下：カメラB）" style="--dx:'+(1182-l)+'px;left:'+l+'px;top:400px;width:196px;height:273px;object-fit:cover;border-radius:8px;transition-duration:.7s">'),wd);
+  });
+  wd.remove();
+
+  /* P6 timeline: blocks grow left to right */
+  var tl=document.getElementById('timeline'),
+    takts=[[150,120,180,110],[160,110,175,115],[145,125,185,105]],
+    fills=['#3DD6F5','rgba(61,214,245,0.6)','rgba(61,214,245,0.32)','rgba(232,234,237,0.28)'], k=0;
+  takts.forEach(function(w,ti){
+    var x=122+560*ti;
+    w.forEach(function(ww,si){
+      tl.parentNode.insertBefore(el('<div class="abs a" data-anim="grow" data-t="'+(500+k*120)+'" style="left:'+x+'px;top:720px;width:'+(ww-4)+'px;height:60px;border-radius:4px;background:'+fills[si]+';transition-duration:.45s"></div>'),tl);
+      x+=ww; k++;
+    });
+  });
+  tl.remove();
+
+  /* P8 cards */
+  var ac=document.getElementById('askcards'),
+    asks=[['01','<rect x="5" y="12" width="21" height="16" rx="2.5"/><path d="M26 17.5L35 13V27L26 22.5"/>','実映像での評価体制'],
+          ['02','<path d="M10 5H24L31 12V35H10Z"/><path d="M24 5V12H31M15 19H26M15 24H26M15 29H22"/>','工程表・作業定義の共有'],
+          ['03','<circle cx="20" cy="20" r="14"/><circle cx="20" cy="20" r="7"/><circle cx="20" cy="20" r="1.5"/>','評価対象工程の選定']];
+  asks.forEach(function(a,i){
+    ac.parentNode.insertBefore(el('<div class="abs card a" data-anim="rise" data-t="'+(100+i*100)+'" style="left:'+(120+571*i)+'px;top:304px;width:538px;height:216px;display:flex;flex-direction:column;gap:24px;padding:40px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center"><p class="mono" style="font-size:24px;color:#3DD6F5">'+a[0]+'</p>'+
+      '<svg class="ico" stroke="#A8AFB9" width="40" height="40" viewBox="0 0 40 40">'+a[1]+'</svg></div>'+
+      '<h3 style="font-size:36px;font-weight:700;line-height:1.35">'+a[2]+'</h3></div>'),ac);
+  });
+  ac.remove();
+
+  /* ---------- player ---------- */
+  var stage=document.getElementById('stage'), slides=[].slice.call(document.querySelectorAll('.slide')),
+      video=document.getElementById('cgvideo'), notes=document.getElementById('notes'),
+      cur=-1, step=0;
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll('.a').forEach(function(e){
+    var t=+(e.dataset.t||0); if(!reduce) e.style.transitionDelay=t+'ms';
+  });
+  function maxStep(sl){var m=0;sl.querySelectorAll('.a[data-c]').forEach(function(e){m=Math.max(m,+e.dataset.c)});return m;}
+  function items(sl){return [].slice.call(sl.querySelectorAll('.a'));}
+  function lvl(e){return +(e.dataset.c||0);}
+
+  function fit(){var s=Math.min(innerWidth/1920,innerHeight/1080);
+    stage.style.transform='translate('+(innerWidth-1920*s)/2+'px,'+(innerHeight-1080*s)/2+'px) scale('+s+')';}
+  addEventListener('resize',fit); fit();
+
+  function setStep(sl,n,instant){
+    if(instant){sl.classList.add('noanim');}
+    items(sl).forEach(function(e){e.classList.toggle('on',lvl(e)<=n);});
+    if(instant){void sl.offsetWidth;sl.classList.remove('noanim');}
+  }
+  function syncVideo(){
+    var on=slides[cur].id==='approach' && step<1;
+    if(on){var p=video.play(); if(p&&p.catch)p.catch(function(){});} else video.pause();
+  }
+  function go(i,final){
+    if(i<0||i>=slides.length) return;
+    var prev=slides[cur], sl=slides[i];
+    if(prev && prev!==sl) prev.classList.remove('cur');
+    sl.classList.add('noanim'); items(sl).forEach(function(e){e.classList.remove('on')}); void sl.offsetWidth; sl.classList.remove('noanim');
+    cur=i; step=final?maxStep(sl):0;
+    sl.classList.add('cur');
+    if(sl.id==='approach' && !final){ try{video.currentTime=0;}catch(e){} }
+    if(final) setStep(sl,step,true);
+    else requestAnimationFrame(function(){requestAnimationFrame(function(){setStep(sl,0,false);});});
+    syncVideo(); renderNotes();
+    history.replaceState(null,'','#'+(i+1));
+  }
+  function next(){var sl=slides[cur]; if(step<maxStep(sl)){step++;setStep(sl,step,false);syncVideo();} else go(cur+1,false);}
+  function prev(){var sl=slides[cur]; if(step>0){step--;setStep(sl,step,true);syncVideo();} else go(cur-1,true);}
+  function renderNotes(){
+    document.getElementById('notesh').textContent=(cur+1)+' / '+slides.length+'　'+(slides[cur].querySelector('h1,h2').textContent);
+    document.getElementById('notesb').textContent=slides[cur].querySelector('.notes').textContent;
+  }
+  function fs(){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(function(){}); }
+
+  addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+    else if(k==='Home'){go(0,false);}
+    else if(k==='End'){go(slides.length-1,true);}
+    else if(k==='f'||k==='F'){fs();}
+    else if(k==='n'||k==='N'){notes.classList.toggle('show');}
+  });
+  stage.addEventListener('click',function(e){ if(e.clientX<innerWidth*0.25) prev(); else next(); });
+
+  setTimeout(function(){document.getElementById('hint').classList.add('hide')},4000);
+  addEventListener('beforeprint',function(){slides.forEach(function(s){setStep(s,99,true)})});
+  addEventListener('afterprint',function(){var c=cur;cur=-1;slides.forEach(function(s){s.classList.remove('cur')});go(c,true);});
+
+  addEventListener('hashchange',function(){var n=parseInt(location.hash.slice(1),10); if(!isNaN(n)&&n-1!==cur) go(Math.min(Math.max(n-1,0),slides.length-1),false);});
+  var start=parseInt((location.hash||'').slice(1),10);
+  go(isNaN(start)?0:Math.min(Math.max(start-1,0),slides.length-1),false);
+})();
+</script>
+</body>
+</html>
